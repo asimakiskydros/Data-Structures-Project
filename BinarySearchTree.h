@@ -11,7 +11,7 @@ class BinarySearchTree{
 	private:
 		node *root;
 		void insert(char*,node* /*root*/);
-		node *search(char*,node* /*root*/,node* /*parent*/);
+		node *search(char*,node* /*root*/,node* /*parent*/,bool* /*isRight?*/);
 		void destroy(node* /*root*/);
 	public:
 		BinarySearchTree();//Creates empty tree
