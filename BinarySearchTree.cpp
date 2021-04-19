@@ -18,7 +18,8 @@ void BinarySearchTree::insert(char* string){
 		return;
 	}
 	else{
-		tmp=search(string,root,parent);
+		bool boole=false;//unimportant here; only needed so the function works
+		tmp=search(string,root,parent,&boole);
 		//Identical strings occupy the same node multiple times
 		if(tmp!=nullptr)
 			tmp->instances++;
@@ -50,7 +51,8 @@ void BinarySearchTree::insert(char *string,node* ptr){
 //Public part - same reasoning as before
 node *BinarySearchTree::search(char *string){
 	int timecount;//unfinished
-	node* ptr=search(string,root,nullptr);
+	bool boole=false;//unimportant here; only needed so the function works
+	node* ptr=search(string,root,nullptr,&boole);
 	if(ptr==nullptr)
 		return nullptr;
 	else{
@@ -59,7 +61,7 @@ node *BinarySearchTree::search(char *string){
 	return ptr;
 }
 //Private part
-node *BinarySearchTree::search(char *string,node *ptr, node* parent){
+node *BinarySearchTree::search(char *string,node *ptr, node* parent,bool* isRight){
 	int comparator=strcmp(ptr->data,string);
 	if(ptr->left==nullptr && ptr->right==nullptr){//end of the line  
 		if(comparator!=0)//the string does not exist
@@ -67,11 +69,16 @@ node *BinarySearchTree::search(char *string,node *ptr, node* parent){
 		else//Found!
 			return ptr;
 	}
-	else{ 
-		if(ptr->right!=nullptr && comparator<0)//then string>node data
-			return search(string,ptr->right,ptr);
-		else if(ptr->left!=nullptr && comparator>0)//then string<node data
-			return search(string,ptr->left,ptr);
+	else{
+		parent=ptr; 
+		if(ptr->right!=nullptr && comparator<0){//then string>node data
+			*isRight=true;
+			return search(string,ptr->right,parent,isRight);
+		}
+		else if(ptr->left!=nullptr && comparator>0){//then string<node data
+			*isRight=false;
+			return search(string,ptr->left,parent,isRight);
+		}
 	}
 }
 //Public Part
@@ -110,6 +117,74 @@ node *BinarySearchTree::get_min(){
 	cout<<"The minimum (or lesser) string in this tree is "<<temp->data<<endl;
 	return temp;
 }
+bool BinarySearchTree::delete_(char *string){
+	node *toBeDeleted, *parent=nullptr;
+	bool isRightChild=false;
+	toBeDeleted=search(string,root,parent,&isRightChild);
+	if(toBeDeleted==nullptr)//The string doesn't exist inside the tree
+		return false;
+	else if(toBeDeleted->instances>0)
+		toBeDeleted->instances--;
+	else if(toBeDeleted->instances==0){
+		if(toBeDeleted->left==nullptr && toBeDeleted->right==nullptr){//First case: leaf
+			delete toBeDeleted->data;
+			delete toBeDeleted->left;
+			delete toBeDeleted->right;
+			toBeDeleted=nullptr;
+		}
+		else if(toBeDeleted->right!=nullptr && toBeDeleted->left==nullptr){//Second case: Single child (right)
+			if(isRightChild==true){//ie if the "toBeDeleted" node is the right child of the parent
+				parent->right=toBeDeleted->right;
+				delete toBeDeleted->data;
+				delete toBeDeleted->left;
+				delete toBeDeleted;
+			}
+			else{
+				parent->left=toBeDeleted->right;
+				delete toBeDeleted->data;
+				delete toBeDeleted->right;
+				delete toBeDeleted;
+			}
+		}
+		else if(toBeDeleted->right==nullptr && toBeDeleted->left!=nullptr){//Second case: Single child (left)
+			if(isRightChild==true){
+				parent->right=toBeDeleted->left;
+				delete toBeDeleted->data;
+				delete toBeDeleted->left;
+				delete toBeDeleted;
+			}
+			else{
+				parent->left=toBeDeleted->left;
+				delete toBeDeleted->data;
+				delete toBeDeleted->right;
+				delete toBeDeleted;
+			}
+		}
+		else{//Third case: two children
+			//Next in line to occupy the to-be-deleted node is its immediate next in ascending order
+			//ie the MIN of its right subtree
+			node *MIN=toBeDeleted->right,*parentMIN=toBeDeleted;
+			while(MIN->left!=nullptr){
+				parentMIN=MIN;
+				MIN=MIN->left;
+			}
+			//Care: The MIN, by definition, can have at most one child, strictly the right one
+			parentMIN->left=MIN->right;//if there is none it will default to nullptr
+			if(isRightChild==true)
+				parent->right=MIN;
+			else
+				parent->left=MIN;
+			MIN->right=toBeDeleted->right;
+			MIN->left=toBeDeleted->left;
+			delete toBeDeleted->data;
+			delete toBeDeleted;
+		}
+	}
+	return true;
+}//MAKARI na einai swsti auti i methodos alla dn exw kales prooptikes rn; tha tin ksanacheckarw
+
+
+
 //WIP
 
 //Oso perisotero ta koitaw toso pio poly moy fainetai oti einai ola lathos xddd
