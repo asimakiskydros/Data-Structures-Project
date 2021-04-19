@@ -6,40 +6,40 @@ using namespace std;
 BinarySearchTree::BinarySearchTree(){
 	root=nullptr;
 }
-BinarySearchTree::BinarySearchTree(char *string){
-	root->data=new char[strlen(string)+1];
-	strcpy(root->data,string);
-	root->left=nullptr;
-	root->right=nullptr;
-	root->instances=1;
-}
 BinarySearchTree::~BinarySearchTree(){
 	destroy(root);
 }
 //Public part - the user can't be expected to provide a node
 void BinarySearchTree::insert(char* string){
+	node *tmp,*parent=nullptr;
 	//if the tree is empty, place at root
 	if(root==nullptr){
 		insert(string,root);
 		return;
 	}
-	//Identical strings occupy the same node multiple times
-	else if(root!=nullptr && strcmp(root->data,string)==0){
-		root->instances++;
-		return;
+	else{
+		tmp=search(string,root,parent);
+		//Identical strings occupy the same node multiple times
+		if(tmp!=nullptr)
+			tmp->instances++;
+		else{//If it's not where the function last checked, it should be placed there
+			if(strcmp(string,parent->data)>0){
+				parent->right=new node;
+				parent->right->right=nullptr;
+				parent->right->left=nullptr;
+				insert(string,parent->right);
+			}
+			else if(strcmp(string,parent->data)<0){
+				parent->left = new node;
+				parent->left->right=nullptr;
+				parent->left->left=nullptr;
+				insert(string,parent->left);
+			}
+		}
 	}
-	if(strcmp(root->data,string)<0)//then new node>root
-		insert(string,root->right);
-	else if(strcmp(root->data,string)>0)//then new node<root
-		insert(string,root->left);
 }
-//Private part - the node is required for the recursive method
+//Private part - the node is required
 void BinarySearchTree::insert(char *string,node* ptr){
-	//Basically, the algorithm deals with every node as if its the root of an empty (sub)tree
-	ptr=new node;
-	ptr->left=nullptr;
-	ptr->right=nullptr;
-	
 	//get string
 	ptr->data=new char[strlen(string)+1];
 	strcpy(ptr->data,string);
@@ -50,7 +50,7 @@ void BinarySearchTree::insert(char *string,node* ptr){
 //Public part - same reasoning as before
 node *BinarySearchTree::search(char *string){
 	int timecount;//unfinished
-	node* ptr=search(string,root);
+	node* ptr=search(string,root,nullptr);
 	if(ptr==nullptr)
 		return nullptr;
 	else{
@@ -59,17 +59,20 @@ node *BinarySearchTree::search(char *string){
 	return ptr;
 }
 //Private part
-node *BinarySearchTree::search(char *string,node *ptr){
-	if(ptr->left==nullptr && ptr->right==nullptr && strcmp(ptr->data,string)!=0)
-		//end of the line; the string does not exist
-		return nullptr;
+node *BinarySearchTree::search(char *string,node *ptr, node* parent){
 	int comparator=strcmp(ptr->data,string);
-	if(comparator==0)//Found!
-		return ptr;
-	else if(comparator<0)//then string>node data
-		return search(string,ptr->right);
-	else//then string<node data
-		return search(string,ptr->left);
+	if(ptr->left==nullptr && ptr->right==nullptr){//end of the line  
+		if(comparator!=0)//the string does not exist
+			return nullptr;
+		else//Found!
+			return ptr;
+	}
+	else{ 
+		if(ptr->right!=nullptr && comparator<0)//then string>node data
+			return search(string,ptr->right,ptr);
+		else if(ptr->left!=nullptr && comparator>0)//then string<node data
+			return search(string,ptr->left,ptr);
+	}
 }
 //Public Part
 void BinarySearchTree::destroy(){
@@ -82,8 +85,12 @@ void BinarySearchTree::destroy(node *ptr){
 		destroy(ptr->left);
 	if(ptr->right!=nullptr)
 		destroy(ptr->right);
-	if(ptr!=nullptr)
+	if(ptr!=nullptr){
+		delete ptr->data;
+		delete ptr->left;
+		delete ptr->right;
 		delete ptr;
+	}
 }
 node *BinarySearchTree::get_max(){
 	//As this is a binary Search tree, the maximum value is the furthermost leaf on the right
@@ -104,3 +111,6 @@ node *BinarySearchTree::get_min(){
 	return temp;
 }
 //WIP
+
+//Oso perisotero ta koitaw toso pio poly moy fainetai oti einai ola lathos xddd
+//papadopoule r mlk mas ponese to kefali 
