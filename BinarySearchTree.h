@@ -8,11 +8,13 @@ struct node{
 };
 
 class BinarySearchTree{
-	private:
+	protected:
 		node *root;
 		void insert(char*,node* /*root*/);
 		node *search(char*,node* /*root*/,node* /*parent*/,bool* /*isRight?*/);
 		void destroy(node* /*root*/);
+		void print(node* /*root*/);
+		void scan(node* /*root*/,short );//short: 1;preorder 2;inorder 3;postorder
 	public:
 		BinarySearchTree();//Creates empty tree
 		~BinarySearchTree();
@@ -25,13 +27,8 @@ class BinarySearchTree{
 		void preorder();
 		void inorder();
 		void postorder();
-		void levelorder();
 		node* get_max();//Finds and prints the MAX value then returns its address
-		node* get_min();//Works accordingly, for the MIN value
+		node* get_min();//Works similarly, for the MIN value
 };
 
 #endif //BINARYSEARCHTREE_H
-
-//yo goga an ksexnaw kapoia sinartisi grapse se sxolia
-
-//WIP
