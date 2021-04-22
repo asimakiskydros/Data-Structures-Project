@@ -1,6 +1,7 @@
 #include "BinarySearchTree.h"
 #include <cstring>
 #include <iostream>
+#include <chrono>
 using namespace std;
 
 BinarySearchTree::BinarySearchTree(){
@@ -50,13 +51,15 @@ void BinarySearchTree::insert(char *string,node* ptr){
 }
 //Public part - same reasoning as before
 node *BinarySearchTree::search(char *string){
-	int timecount;//unfinished
 	bool boole=false;//unimportant here; only needed so the function works
+	auto start= std::chrono::high_resolution_clock::now();
 	node* ptr=search(string,root,nullptr,&boole);
+	auto stop= std::chrono::high_resolution_clock::now();
 	if(ptr==nullptr)
 		return nullptr;
 	else{
-		cout<<"String \""<<string<<"\" exists in the binary tree "<<ptr->instances<<" time(s) (search time: "<<timecount<<" seconds)."<<endl;
+		auto duration=std::chrono::duration_cast<std::chrono::seconds>(stop-start);
+		cout<<"String \""<<string<<"\" exists in the binary tree "<<ptr->instances<<" time(s) (search time: "<<duration.count()<<" seconds)."<<endl;
 	}
 	return ptr;
 }
@@ -80,6 +83,7 @@ node *BinarySearchTree::search(char *string,node *ptr, node* parent,bool* isRigh
 			return search(string,ptr->left,parent,isRight);
 		}
 	}
+	return nullptr;//Only to avoid any warnings in compilation - it shouldn't be reachable
 }
 //Public Part
 void BinarySearchTree::destroy(){
@@ -123,42 +127,41 @@ bool BinarySearchTree::delete_(char *string){
 	toBeDeleted=search(string,root,parent,&isRightChild);
 	if(toBeDeleted==nullptr)//The string doesn't exist inside the tree
 		return false;
-	else if(toBeDeleted->instances>0)
+	else if(toBeDeleted->instances>1)
 		toBeDeleted->instances--;
-	else if(toBeDeleted->instances==0){
+	else if(toBeDeleted->instances==1){
 		if(toBeDeleted->left==nullptr && toBeDeleted->right==nullptr){//First case: leaf
 			delete toBeDeleted->data;
 			delete toBeDeleted->left;
 			delete toBeDeleted->right;
+			if(isRightChild==true)
+				parent->right=nullptr;
+			else
+				parent->left=nullptr;
 			toBeDeleted=nullptr;
+			delete toBeDeleted;
 		}
 		else if(toBeDeleted->right!=nullptr && toBeDeleted->left==nullptr){//Second case: Single child (right)
-			if(isRightChild==true){//ie if the "toBeDeleted" node is the right child of the parent
+			if(isRightChild==true)//ie if the "toBeDeleted" node is the right child of the parent
 				parent->right=toBeDeleted->right;
-				delete toBeDeleted->data;
-				delete toBeDeleted->left;
-				delete toBeDeleted;
-			}
-			else{
+			else
 				parent->left=toBeDeleted->right;
-				delete toBeDeleted->data;
-				delete toBeDeleted->right;
-				delete toBeDeleted;
-			}
+			delete toBeDeleted->data;
+			delete toBeDeleted->left;
+			toBeDeleted->right=nullptr;
+			delete toBeDeleted->right;
+			delete toBeDeleted;
 		}
 		else if(toBeDeleted->right==nullptr && toBeDeleted->left!=nullptr){//Second case: Single child (left)
-			if(isRightChild==true){
+			if(isRightChild==true)
 				parent->right=toBeDeleted->left;
-				delete toBeDeleted->data;
-				delete toBeDeleted->left;
-				delete toBeDeleted;
-			}
-			else{
+			else
 				parent->left=toBeDeleted->left;
-				delete toBeDeleted->data;
-				delete toBeDeleted->right;
-				delete toBeDeleted;
-			}
+			delete toBeDeleted->data;
+			delete toBeDeleted->right;
+			toBeDeleted->left=nullptr;
+			delete toBeDeleted->left;
+			delete toBeDeleted;
 		}
 		else{//Third case: two children
 			//Next in line to occupy the to-be-deleted node is its immediate next in ascending order
@@ -168,7 +171,7 @@ bool BinarySearchTree::delete_(char *string){
 				parentMIN=MIN;
 				MIN=MIN->left;
 			}
-			//Care: The MIN, by definition, can have at most one child, strictly the right one
+			//Note: The MIN, by definition, can have at most one child, strictly the right one
 			parentMIN->left=MIN->right;//if there is none it will default to nullptr
 			if(isRightChild==true)
 				parent->right=MIN;
@@ -177,15 +180,50 @@ bool BinarySearchTree::delete_(char *string){
 			MIN->right=toBeDeleted->right;
 			MIN->left=toBeDeleted->left;
 			delete toBeDeleted->data;
+			toBeDeleted->right=nullptr;
+			toBeDeleted->left=nullptr;
+			delete toBeDeleted->right;
+			delete toBeDeleted->left;
 			delete toBeDeleted;
+			MIN=nullptr;
+			parentMIN=nullptr;
+			delete MIN;
+			delete parentMIN;
 		}
 	}
+	parent=nullptr;
+	delete parent;
 	return true;
-}//MAKARI na einai swsti auti i methodos alla dn exw kales prooptikes rn; tha tin ksanacheckarw
-
-
-
-//WIP
-
-//Oso perisotero ta koitaw toso pio poly moy fainetai oti einai ola lathos xddd
-//papadopoule r mlk mas ponese to kefali 
+}//paizei na einai oli lathos tha diksei sto bugfixing
+void BinarySearchTree::print(node* ptr){
+	cout<<ptr->data<<" (appears "<<ptr->instances<<" time(s)), ";
+}
+void BinarySearchTree::scan(node* ptr,short which){
+	if(ptr==nullptr)
+		return;
+	if(which==1){//preorder; Root->Left->Right
+		print(ptr);
+		scan(ptr->left,1);
+		scan(ptr->right,1);
+	}
+	else if(which==2){//inorder; Left->Root->Right
+		scan(ptr->left,2);
+		print(ptr);
+		scan(ptr->right,2);
+	}
+	else if(which==3){//postorder; Left->Right->Root
+		scan(ptr->left,3);
+		scan(ptr->right,3);
+		print(ptr);
+	}
+}
+void BinarySearchTree::preorder(){
+	scan(root,1);
+}
+void BinarySearchTree::inorder(){
+	scan(root,2);
+}
+void BinarySearchTree::postorder(){
+	scan(root,3);
+}
+//Done me to implementation - menei to bugfixing
