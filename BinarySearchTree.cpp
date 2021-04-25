@@ -45,7 +45,7 @@ void BinarySearchTree::insert(char *string,node* ptr){
 	//get string
 	ptr->data=new char[strlen(string)+1];
 	strcpy(ptr->data,string);
-	ptr->data[strcspn(ptr->data," \n")]='\0';
+	//ptr->data[strcspn(ptr->data," \n")]='\0';
 	
 	ptr->instances=1;	
 }
@@ -138,7 +138,6 @@ bool BinarySearchTree::delete_(char *string){
 				parent->right=nullptr;
 			else
 				parent->left=nullptr;
-			toBeDeleted=nullptr;
 			delete toBeDeleted;
 		}
 		else if(toBeDeleted->right!=nullptr && toBeDeleted->left==nullptr){//Second case: Single child (right)
@@ -185,14 +184,8 @@ bool BinarySearchTree::delete_(char *string){
 			delete toBeDeleted->right;
 			delete toBeDeleted->left;
 			delete toBeDeleted;
-			MIN=nullptr;
-			parentMIN=nullptr;
-			delete MIN;
-			delete parentMIN;
 		}
 	}
-	parent=nullptr;
-	delete parent;
 	return true;
 }//paizei na einai oli lathos tha diksei sto bugfixing
 void BinarySearchTree::print(node* ptr){
