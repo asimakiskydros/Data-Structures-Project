@@ -6,19 +6,16 @@ class BinarySearchTreeAVL:public BinarySearchTree{
 	private:
 		int treeHeight(node*);
 		int heightDiff(node*);
-		bool checkForUnbalance(node*);//idk
-		void correct(node*);
-		void leftRotation(node*);
-		void rightRotation(node*);
+		bool scanForUnbalance(node*,node* /*parent*/,bool /*isRight*/);
+		void leftRotation(node*, node* /*parent*/,bool /*isRight*/);
+		void rightRotation(node*, node* /*parent*/,bool /*isRight*/);
 	public:
 		BinarySearchTreeAVL();
 		~BinarySearchTreeAVL();
 		void insert(char *);
 		bool delete_(char *);
-		//These two behave the same as in the regular tree, but with every
+		//These two behave exactly the same as in the regular tree, but with every
 		//instance they check if the height balance is disturbed and act accordingly
 };
 
 #endif //BINARYSEARCHTREEAVL_H
-
-//WIP
