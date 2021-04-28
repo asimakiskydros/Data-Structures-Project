@@ -11,7 +11,6 @@ class BinarySearchTreeAVL:public BinarySearchTree{
 		void rightRotation(node*, node* /*parent*/,bool /*isRight*/);
 	public:
 		BinarySearchTreeAVL();
-		~BinarySearchTreeAVL();
 		void insert(char *);
 		bool delete_(char *);
 		//These two behave exactly the same as in the regular tree, but with every
