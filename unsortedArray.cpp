@@ -128,3 +128,5 @@ bool unsortedArray::delete_word(char * string)
 }
 
 //NOT DONE AT ALL
+
+//kala ta pas, dw - destroy pou mou eleges btw den nomizw na xriazesai. Kamia print() tha ekana egw ama ithela na valw kai tpt allo, an kai me toses lekseis isws na min einai kali idea xdd
