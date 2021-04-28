@@ -1,9 +1,6 @@
 #include "BinarySearchTreeAVL.h"
 
 BinarySearchTreeAVL::BinarySearchTreeAVL():BinarySearchTree(){}
-BinarySearchTreeAVL::~BinarySearchTreeAVL(){
-	destroy(root);
-}
 int BinarySearchTreeAVL::treeHeight(node *ptr){
 	if(ptr==nullptr)
 		return 0;
@@ -11,78 +8,100 @@ int BinarySearchTreeAVL::treeHeight(node *ptr){
 		return 1;
 	int heightR=treeHeight(ptr->right);
 	int heightL=treeHeight(ptr->left);
+	//A tree's height is the height of its longer subtree +1 for the root itself
+	//(Making it zero-based complicates the recursive returns for little benefit)
 	return heightR>heightL ? 1+heightR : 1+heightL;
 }
 int BinarySearchTreeAVL::heightDiff(node* ptr){
 	return treeHeight(ptr->left)-treeHeight(ptr->right);
 }
-void BinarySearchTreeAVL::insert(char *string){
-	BinarySearchTree::insert(string,root);//add the string
-	node *parent=nullptr;
-	bool rightChild=0;
-	node* pos=search(string,root,parent,&rightChild);//find the newly added node and its details
-	scanForUnbalance(pos,parent,rightChild);//check if the tree it belongs is disturbed and act
-	scanForUnbalance(root,nullptr,0);//scan the entire tree just in case a double rotation is needed
+void BinarySearchTreeAVL::leftRotation(node *ptr,node *prnt,bool isRight){
+	//We forget rotations entirely; simply pick the MIN of the right subtree as the new root
+	//This works because that specific node is the immediate next of the current root
+	//and thus able to support all the subtrees without ruining the Search Structure
+	node *MIN,*parentMIN;
+	MIN=ptr->right;
+	parentMIN=ptr;
+	while(MIN->left!=nullptr){
+		parentMIN=MIN;
+		MIN=MIN->left;
+	}
+	if(ptr==root){//Necessary in order to avoid SegFault (prnt==nullptr)
+		node *temp;
+		temp=root;
+		parentMIN->left=MIN->right;//Reminder that the MIN can at most have one (right) child
+		root=MIN;
+		root->left=temp;
+		root->right=temp->right;
+		temp->right=nullptr;
+		return;
+	}
+	parentMIN->left=MIN->right;
+	if(isRight)
+		prnt->right=MIN;
+	else
+		prnt->left=MIN;
+	MIN->left=ptr;
+	MIN->right=ptr->right;
+	ptr->right=nullptr;
 }
-bool BinarySearchTreeAVL::delete_(char *string){
-	node *parent=nullptr,*grandpa=nullptr;
-	bool rightChild=0;
-	search(string,root,parent,&rightChild);//find the parent and its details
-	rightChild=0;
-	search(parent->data,root,grandpa,&rightChild);//find the grandpa and its details
-	bool response=BinarySearchTree::delete_(string);//remove the string
-	if(response==true){
-		scanForUnbalance(parent,grandpa,rightChild);//check if the parent tree is now disturbed and act
-		scanForUnbalance(root,nullptr,0);//scan the entire tree just in case a double rotation is needed
+void BinarySearchTreeAVL::rightRotation(node *ptr,node *prnt,bool isRight){
+	//Similarly, we pick the MAX of the left subtree here
+	node *MAX,*parentMAX;
+	MAX=ptr->left;
+	parentMAX=ptr;
+	while(MAX->right!=nullptr){
+		parentMAX=MAX;
+		MAX=MAX->right;
 	}
-	return response;
-}//this was done pretty fast, might be wrong
-void BinarySearchTreeAVL::leftRotation(node *ptr,node *parent,bool isRight){
-	node *temp=ptr->right;
-	if(heightDiff(ptr->right)>0){//(Subtree ptr->right) heightL>heightR
-		ptr->right=ptr->right->right;
-		temp->right=ptr;
+	if(ptr==root){
+		node *temp;
+		temp=root;
+		parentMAX->right=MAX->left;//As per the definition of MAX, it can have at most one (left) child
+		root=MAX;
+		root->right=temp;
+		root->left=temp->left;
+		temp->left=nullptr;
+		return;
 	}
-	else{//(Subtree ptr->right) heightL<=heightR
-		ptr->right=ptr->right->left;
-		temp->left=ptr;
-	}
-	if(isRight==true)
-			parent->right=temp;
-		else
-			parent->left=temp;
-	//A left rotation is required when the right subtree of the original node is unbalanced
-	//Simply find whichever subtree of the node->right tree is taller and make the other one the new right
-	//child of the original node.
-	//Then move the original node to the right node's child spot just left vacant.
-	//Finally make the right child node the new head of the master tree. 
+	parentMAX->right=MAX->left;
+	if(isRight)
+		prnt->right=MAX;
+	else
+		prnt->left=MAX;
+	MAX->right=ptr;
+	MAX->left=ptr->left;
+	ptr->left=nullptr;
 }
-void BinarySearchTreeAVL::rightRotation(node *ptr,node *parent,bool isRight){
-	node *temp=ptr->left;
-	if(heightDiff(ptr->right)>0){//(Subtree ptr->right) heightL>heightR
-		ptr->left=ptr->left->right;
-		temp->right=ptr;
-	}
-	else{//(Subtree ptr->right) heightL<=heightR
-		ptr->left=ptr->left->left;
-		temp->left=ptr;
-	}
-	if(isRight==true)
-			parent->right=temp;
-		else
-			parent->left=temp;
-	//Exact same logic
-}
-bool BinarySearchTreeAVL::scanForUnbalance(node * ptr, node* parent,bool isRight){
-	if(ptr==nullptr)//probably unimportant; it shouldn't safeguard from crashes if the pointer is non-existant
+bool BinarySearchTreeAVL::scanForUnbalance(node * ptr, node* prnt,bool isRight){
+	if(ptr==nullptr)//Safeguard for crashes; if the tree is empty it cannot be unbalanced
 		return false;
 	int HD=heightDiff(ptr);
-	if(HD==0 || HD==1 || HD==-1)
-		return false;
-	if(HD<-1)//Unbalanced right subtree
-		leftRotation(ptr,parent,isRight);
-	else if(HD>1)//Unbalanced left subtree
-		rightRotation(ptr,parent,isRight);
-	return true;
+	bool resp3=false;
+	if(HD!=0 && HD!=1 && HD!=-1){
+		if(HD<-1)//Unbalanced right subtree
+			leftRotation(ptr,prnt,isRight);
+		else if(HD>1)//Unbalanced left subtree
+			rightRotation(ptr,prnt,isRight);
+		resp3=true;
+	}
+	bool resp1=scanForUnbalance(ptr->left,ptr,false);
+	bool resp2=scanForUnbalance(ptr->right,ptr,true);
+	//Return true if at least one change was made
+	return (resp1 || resp2 || resp3);
 }
-//Implementation done - menei to bugfixing
+void BinarySearchTreeAVL::insert(char *string){
+	BinarySearchTree::insert(string);//add string
+	node* prnt=nullptr;
+	bool isright=false;
+	scanForUnbalance(root,prnt,isright);
+}
+bool BinarySearchTreeAVL::delete_(char *string){
+	bool response=BinarySearchTree::delete_(string);//delete string
+	if(response){
+		node* prnt=nullptr;
+		bool isright=false;
+		scanForUnbalance(root,prnt,isright);
+	}
+	return response;
+}
