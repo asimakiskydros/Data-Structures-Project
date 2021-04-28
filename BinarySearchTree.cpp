@@ -2,7 +2,9 @@
 #include <cstring>
 #include <iostream>
 #include <chrono>
+
 using namespace std;
+using namespace std::chrono;
 
 BinarySearchTree::BinarySearchTree(){
 	root=nullptr;
@@ -10,186 +12,115 @@ BinarySearchTree::BinarySearchTree(){
 BinarySearchTree::~BinarySearchTree(){
 	destroy(root);
 }
-//Public part - the user can't be expected to provide a node
-void BinarySearchTree::insert(char* string){
-	node *tmp,*parent=nullptr;
-	//if the tree is empty, place at root
-	if(root==nullptr){
-		insert(string,root);
-		return;
+void BinarySearchTree::reset(){
+	destroy(root);
+	root=nullptr;
+	cout<<"Tree resetted successfully"<<endl;	
+}
+void BinarySearchTree::destroy(node *ptr){
+	if(ptr!=nullptr){
+		destroy(ptr->left);
+		destroy(ptr->right);
+		delete [] ptr->data;
 	}
-	else{
-		bool boole=false;//unimportant here; only needed so the function works
-		tmp=search(string,root,parent,&boole);
-		//Identical strings occupy the same node multiple times
-		if(tmp!=nullptr)
-			tmp->instances++;
-		else{//If it's not where the function last checked, it should be placed there
-			if(strcmp(string,parent->data)>0){
-				parent->right=new node;
-				parent->right->right=nullptr;
-				parent->right->left=nullptr;
-				insert(string,parent->right);
-			}
-			else if(strcmp(string,parent->data)<0){
-				parent->left = new node;
-				parent->left->right=nullptr;
-				parent->left->left=nullptr;
-				insert(string,parent->left);
-			}
+	delete ptr;
+}
+//Public part - the user can't be expected to provide a node
+void BinarySearchTree::insert(char *string){
+	if(root!=nullptr){//if the root exists, the tree exists; kickstart the recursion
+		insert(string,root);
+	}
+	else{//the root is empty; place at root
+		root=new node;
+		root->data=new char[strlen(string)+1];
+		strcpy(root->data,string);
+		root->left=nullptr;
+		root->right=nullptr;
+		root->instances=1;
+	}
+}
+//Private part - the node is necessary for the recursive method
+void BinarySearchTree::insert(char *string,node *ptr){
+	int comparator=strcmp(string,ptr->data);
+	if(comparator==0)//Identical strings occupy the same node multiple times
+		ptr->instances++;
+	else if(comparator<0){//i.e. if string<ptr->data
+		if(ptr->left!=nullptr){
+			int comp=strcmp(string,ptr->left->data);
+			if(comp!=0)//The node is occupied by a foreign string, continue searching	
+				insert(string,ptr->left);
+			else//Occupied, but by the same string
+				ptr->left->instances++;
+		}
+		else{//Available space, place here
+			ptr->left=new node;
+			ptr->left->data=new char[strlen(string)+1];
+			strcpy(ptr->left->data,string);
+			ptr->left->left=nullptr;
+			ptr->left->right=nullptr;
+			ptr->left->instances=1;
+		}
+	}
+	else if(comparator>0){//i.e. if string>ptr->data
+		if(ptr->right!=nullptr){
+			int comp=strcmp(string,ptr->right->data);
+			if(comp!=0)//The node is occupied by a foreign string, continue searching	
+				insert(string,ptr->right);
+			else//Occupied, but by the same string
+				ptr->right->instances++;
+		}
+		else{//Available space, place here
+			ptr->right=new node;
+			ptr->right->data=new char[strlen(string)+1];
+			strcpy(ptr->right->data,string);
+			ptr->right->left=nullptr;
+			ptr->right->right=nullptr;
+			ptr->right->instances=1;
 		}
 	}
 }
-//Private part - the node is required
-void BinarySearchTree::insert(char *string,node* ptr){
-	//get string
-	ptr->data=new char[strlen(string)+1];
-	strcpy(ptr->data,string);
-	//ptr->data[strcspn(ptr->data," \n")]='\0';
-	
-	ptr->instances=1;	
+//Private part - same logic
+node* BinarySearchTree::search(char* string,node* ptr){
+	if(ptr!=nullptr){
+		int comparator=strcmp(string,ptr->data);
+		if(comparator==0)//string==ptr->data
+			return ptr;
+		else if(comparator<0)//string<ptr->data
+			return search(string,ptr->left);
+		else//string>ptr->data
+			return search(string,ptr->right);
+	}
+	return nullptr;
 }
-//Public part - same reasoning as before
-node *BinarySearchTree::search(char *string){
-	bool boole=false;//unimportant here; only needed so the function works
-	auto start= std::chrono::high_resolution_clock::now();
-	node* ptr=search(string,root,nullptr,&boole);
-	auto stop= std::chrono::high_resolution_clock::now();
-	if(ptr==nullptr)
-		return nullptr;
-	else{
-		auto duration=std::chrono::duration_cast<std::chrono::seconds>(stop-start);
-		cout<<"String \""<<string<<"\" exists in the binary tree "<<ptr->instances<<" time(s) (search time: "<<duration.count()<<" seconds)."<<endl;
+//Public part
+node *BinarySearchTree::search(char* string){
+	auto start=high_resolution_clock::now();
+	node* ptr=search(string,root);
+	auto stop=high_resolution_clock::now();
+	if(ptr!=nullptr){
+		auto duration=duration_cast<microseconds>(stop-start);
+		cout<<"String \""<<ptr->data<<"\" exists in the tree "<<ptr->instances<<" time(s) (search time: "<<duration.count()<<" microseconds)."<<endl;	
 	}
 	return ptr;
 }
-//Private part
-node *BinarySearchTree::search(char *string,node *ptr, node* parent,bool* isRight){
-	int comparator=strcmp(ptr->data,string);
-	if(ptr->left==nullptr && ptr->right==nullptr){//end of the line  
-		if(comparator!=0)//the string does not exist
-			return nullptr;
-		else//Found!
-			return ptr;
-	}
-	else{
-		parent=ptr; 
-		if(ptr->right!=nullptr && comparator<0){//then string>node data
-			*isRight=true;
-			return search(string,ptr->right,parent,isRight);
-		}
-		else if(ptr->left!=nullptr && comparator>0){//then string<node data
-			*isRight=false;
-			return search(string,ptr->left,parent,isRight);
-		}
-	}
-	return nullptr;//Only to avoid any warnings in compilation - it shouldn't be reachable
-}
-//Public Part
-void BinarySearchTree::destroy(){
-	destroy(root);
-}
-//Private part
-void BinarySearchTree::destroy(node *ptr){
-	//Search and Destroy; From the bottom up, if it's not null, it's dead :)
-	if(ptr->left!=nullptr)
-		destroy(ptr->left);
-	if(ptr->right!=nullptr)
-		destroy(ptr->right);
-	if(ptr!=nullptr){
-		delete ptr->data;
-		delete ptr->left;
-		delete ptr->right;
-		delete ptr;
-	}
-}
-node *BinarySearchTree::get_max(){
+char *BinarySearchTree::get_max(){
 	//As this is a binary Search tree, the maximum value is the furthermost leaf on the right
 	node *temp;
 	temp=root;
 	while(temp->right!=nullptr)
 		temp=temp->right;
-	cout<<"The maximum (or greatest) string in this tree is "<<temp->data<<endl;
-	return temp;
+	return temp->data;
 }
-node *BinarySearchTree::get_min(){
+char *BinarySearchTree::get_min(){
 	//As expected, the furthermost leaf on the left is the minimum value
 	node *temp;
 	temp=root;
 	while(temp->left!=nullptr)
 		temp=temp->left;
-	cout<<"The minimum (or lesser) string in this tree is "<<temp->data<<endl;
-	return temp;
+	return temp->data;
 }
-bool BinarySearchTree::delete_(char *string){
-	node *toBeDeleted, *parent=nullptr;
-	bool isRightChild=false;
-	toBeDeleted=search(string,root,parent,&isRightChild);
-	if(toBeDeleted==nullptr)//The string doesn't exist inside the tree
-		return false;
-	else if(toBeDeleted->instances>1)
-		toBeDeleted->instances--;
-	else if(toBeDeleted->instances==1){
-		if(toBeDeleted->left==nullptr && toBeDeleted->right==nullptr){//First case: leaf
-			delete toBeDeleted->data;
-			delete toBeDeleted->left;
-			delete toBeDeleted->right;
-			if(isRightChild==true)
-				parent->right=nullptr;
-			else
-				parent->left=nullptr;
-			delete toBeDeleted;
-		}
-		else if(toBeDeleted->right!=nullptr && toBeDeleted->left==nullptr){//Second case: Single child (right)
-			if(isRightChild==true)//ie if the "toBeDeleted" node is the right child of the parent
-				parent->right=toBeDeleted->right;
-			else
-				parent->left=toBeDeleted->right;
-			delete toBeDeleted->data;
-			delete toBeDeleted->left;
-			toBeDeleted->right=nullptr;
-			delete toBeDeleted->right;
-			delete toBeDeleted;
-		}
-		else if(toBeDeleted->right==nullptr && toBeDeleted->left!=nullptr){//Second case: Single child (left)
-			if(isRightChild==true)
-				parent->right=toBeDeleted->left;
-			else
-				parent->left=toBeDeleted->left;
-			delete toBeDeleted->data;
-			delete toBeDeleted->right;
-			toBeDeleted->left=nullptr;
-			delete toBeDeleted->left;
-			delete toBeDeleted;
-		}
-		else{//Third case: two children
-			//Next in line to occupy the to-be-deleted node is its immediate next in ascending order
-			//ie the MIN of its right subtree
-			node *MIN=toBeDeleted->right,*parentMIN=toBeDeleted;
-			while(MIN->left!=nullptr){
-				parentMIN=MIN;
-				MIN=MIN->left;
-			}
-			//Note: The MIN, by definition, can have at most one child, strictly the right one
-			parentMIN->left=MIN->right;//if there is none it will default to nullptr
-			if(isRightChild==true)
-				parent->right=MIN;
-			else
-				parent->left=MIN;
-			MIN->right=toBeDeleted->right;
-			MIN->left=toBeDeleted->left;
-			delete toBeDeleted->data;
-			toBeDeleted->right=nullptr;
-			toBeDeleted->left=nullptr;
-			delete toBeDeleted->right;
-			delete toBeDeleted->left;
-			delete toBeDeleted;
-		}
-	}
-	return true;
-}//paizei na einai oli lathos tha diksei sto bugfixing
 void BinarySearchTree::print(node* ptr){
-	cout<<ptr->data<<" (appears "<<ptr->instances<<" time(s)), ";
+	cout<<ptr->data<<" (appears "<<ptr->instances<<" time(s))"<<endl;
 }
 void BinarySearchTree::scan(node* ptr,short which){
 	if(ptr==nullptr)
@@ -219,4 +150,130 @@ void BinarySearchTree::inorder(){
 void BinarySearchTree::postorder(){
 	scan(root,3);
 }
-//Done me to implementation - menei to bugfixing
+//returns the address of the string's parent and whether it's a right child or not
+node *BinarySearchTree::parent(char *string,node *ptr, bool *isRight){
+	if(ptr!=nullptr){
+		int comparator=strcmp(string,ptr->data);
+		if(comparator<0){//string<ptr->data
+			if(ptr->left!=nullptr){
+				if(strcmp(ptr->left->data,string)==0){
+					*isRight=false;
+					return ptr;
+				}
+				else
+					return parent(string,ptr->left,isRight);
+			}
+		}
+		else if(comparator>0){//string>ptr->data
+			if(ptr->right!=nullptr){
+				if(strcmp(ptr->right->data,string)==0){
+					*isRight=true;
+					return ptr;
+				}
+				else
+					return parent(string,ptr->right,isRight);
+			}
+		}
+	}
+	return nullptr;//Basically if the tree is empty or the string is in the root
+}
+bool BinarySearchTree::delete_(char *string){
+	bool isright=false;
+	node *deleting=search(string,root);
+	node* prnt=parent(string,root,&isright);
+	if(deleting==nullptr)//String can't be found inside the tree
+		return false;
+	else if(deleting->instances>1)//All extra instances should be deleted before it's the node's turn
+		deleting->instances--;
+	else if(deleting==root){//It is a special case because prnt==nullptr
+		node *temp;
+		//if one of its children has the correct node available, its easy
+		if(root->left!=nullptr && root->left->right==nullptr){
+			temp=root;
+			root=root->left;
+			root->right=temp->right;
+			delete [] temp->data;
+			delete temp;
+		}
+		else if(root->right!=nullptr && root->right->left==nullptr){
+			temp=root;
+			root=root->right;
+			root->left=temp->left;
+			delete [] temp->data;
+			delete temp;
+		}
+		else{//if not, its immediate next in ascending order should become the new root
+			//ie the MIN of its right subtree
+			//(this could have been generalized for all cases but its slower so there's
+			// no reason to do it if it's not required)
+			temp=root;
+			node *MIN=root->right;
+			node *parentMIN=root;
+			while(MIN->left!=nullptr){
+				parentMIN=MIN;
+				MIN=MIN->left;
+			}
+			//Make MIN's child it's parent's child (Note that by definition the MIN can have at most one (right) child)
+			parentMIN->left=MIN->right;
+			root=MIN;
+			root->left=temp->left;
+			root->right=temp->right;
+			delete [] temp->data;
+			delete temp;
+		}
+	}
+	else{//Assume instances==1; being lower than that should be impossible so the node must be removed regardless
+		if(deleting->left==nullptr && deleting->right==nullptr){//First case: Leaf
+			delete deleting->left;
+			delete deleting->right;
+			delete [] deleting->data;
+			delete deleting;
+			if(isright)
+				prnt->right=nullptr;
+			else
+				prnt->left=nullptr;
+		}
+		else if(deleting->left==nullptr && deleting->right!=nullptr){//Second case: Single child (right)
+			delete deleting->left;
+			delete [] deleting->data;
+			if(isright)
+				prnt->right=deleting->right;
+			else
+				prnt->left=deleting->right;
+			delete deleting;
+		}
+		else if(deleting->left!=nullptr && deleting->right==nullptr){//Second case: Single child (left)
+			delete deleting->right;
+			delete [] deleting->data;
+			if(isright)
+				prnt->right=deleting->left;
+			else
+				prnt->left=deleting->left;
+			delete deleting;
+		}
+		else{//Third case: Two children
+			//Next in line to occupy the "deleting" node is it's immediate next in ascending order
+			node *MIN=deleting->right;
+			node *prntMIN=deleting;
+			while(MIN->left!=nullptr){
+				prntMIN=MIN;
+				MIN=MIN->left;
+			}
+			if(MIN!=deleting->right){//There's a chance the MIN is the immediate right child - without this an infinite loop occurs
+				//Make MIN's child it's parent's child
+				prntMIN->left=MIN->right;
+				//Make "deleting"'s children Min's children
+				MIN->right=deleting->right;
+			}
+			MIN->left=deleting->left;
+			//Attach MIN to parent
+			if(isright)
+				prnt->right=MIN;
+			else
+				prnt->left=MIN;
+			delete [] deleting->data;
+			delete deleting;	
+		}
+	}
+	return true;
+}
