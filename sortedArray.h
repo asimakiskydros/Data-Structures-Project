@@ -1,30 +1,29 @@
 #include "unsortedArray.h"
 #ifndef sortedarr_h
-#def sortedarr_h
+#define sortedarr_h
 
 class sortedArray: public unsortedArray
 {
-  private:
-  //i will add sum stuff here .
+  protected:
+  bool wordExists(char *, int, int);//Looks for the word with binary search, returns true or false depending on if the word is found or not.
+  
+  int numOfWords=0; //The number of unique words. I need it in the sorting process
+
+  char *tmp;//helps me swap the words in the sorting process
+  int tmp1;//helps me swap the sum and length values in the sorting process
+
+  int mid;//helps me with the searching process
   
   public:
-  sortedArray();
-  ~sortedArray();//will probably delete the array// !!!!!!!****
-  void sort();//sorts the array
-  bool search(char *)//Looks for the word with binary search, returns true or false depending on if the word is found or not. 
+  void sort();//sorts the arrays with bubble sort
+  void search(char *, int, int);//Looks for the word with binary search, shows the times the word has appeared(if it exists) plus the searching time
   bool delete_word(char *);//Deletes a specific word in the array and returns true, if the word isn't found returns false
-  void insert(char *);//Inserts the unique words in the array, then the array gets sorted and if the given word already exists(after binary searching), nothing is inserted and only the sum array is updated
+
+  void insert(char *);//Inserts the unique words in the array while the array is getting sorted. If the given word already exists, nothing is inserted and only the sum array is updated
 };
 
 #endif
 
 
 
-
-//ASIMAKI SAMA, HALP IF WHEREVER HALP IS NEEDED, THENK U!
-//to exo psilosnobari to unsorted array, tha to doulepso me to pou nioso oti teliosa kapos to sorted array..
-
-//Asimakis:
-//****!!!: min kaneis destructor ama i klasi klironomei apo to unsorted, tha fas megalo goal apo ton compiler. Ousiastika ta paidia twn klasewn xrisimopoioun ton destructor tis
-//base klasis opote ama to kaneis tha ta diagrapsei 2 fores kai tha fas SegFault error i DoubleFree.
-//Episis, opws se volevei kane ti douleia sou profanws, apla prosexe ama einai na doulepseis prwta to paidi-class kai meta ton patera gia profaneis logous
+//same kai edo... an dis kati pou den sou aresi, comment xD
