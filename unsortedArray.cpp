@@ -1,5 +1,3 @@
-
-
 #include "unsortedArray.h"
 #include <iostream>
 #include <cstring>
@@ -8,80 +6,95 @@ using namespace std;
 
 unsortedArray::unsortedArray()
 {
+  //initializing integers to 0 and pointers to NULL
   last_word=0;
   words=NULL;
   sum=NULL;
+  length=NULL;
 }
 
 unsortedArray::~unsortedArray()
 {
-  delete words;
-  delete sum;
-  delete tempWords;//i think i dont need to do this
-  delete tempSum;//i think that i dont need to do this x2
-}//Asimakis: giati na min xriazetai? rwtaw giati an ta diagrafeis kapou allou kai mpoun ston destructor kena tha fas SegFault (speaking from experience xdd)
-//Sigourepse oti kouvaloun desmeumeni mnimi otan mpainoun ston destructor kai meta na ta kaneis delete - kata t'alla delete xriazontai ola, nai
+  //If the pointers are pointing to memory, we delete them, otherwise we don't.
+  if(words!=NULL)
+    delete words;
+  if(sum!=NULL)  
+    delete sum;
+  if(tempWords!=NULL)
+    delete tempWords;
+  if(tempSum!=NULL)
+    delete tempSum;
+}
 
 
 void unsortedArray::insert(char* string)
 {
-  if(words==NULL && sum==NULL)//basically this block of code runs only on the FIRST word given and allocates memory for the 2 arrays
+  if(words==NULL && sum==NULL)//Basically this block of code runs only on the FIRST word given and allocates memory for the 2 arrays.
   {
-    words = new char*[last_word+1];
-    sum= new int[last_word+1];
-    firstWord = true;
+    arr_size=last_word+5;//The array's size will increase by 5 every 5 words given.
+    words = new char*[arr_size];
+    sum= new int[arr_size];
+    length = new int[arr_size];
+    firstWord = true;//This will become false once the second word is given.
   }
-  if(!wordExists(string))
+  if(!wordExists(string))//If the word does not exist, we put it in the array.
   {
+    //We need this in order to make sure that the value of last_word won't increase if a new word is not given
     if(firstWord==false)
       last_word++;
 
-    int len = strlen(string) + 1;
-
-    words[last_word] = new char[len];
-    strcpy(words[last_word], string);
-
-    sum[last_word]=1;
-
-    char **tempWords=new char*[last_word+1];
-    int *tempSum=new int[last_word+1];
-
-    for(i=0; i<=last_word; i++)
+    if(last_word>arr_size-1)//If the array is full its size will increase by 5.
     {
-      strcpy(tempWords[last_word], words[last_word]);
-      tempSum[last_word]=sum[last_word];
+      arr_size+=5;
+
+      //Creating temporary pointers that point to the new, bigger arrays.  
+      char **tempWords=new char*[arr_size];
+      int *tempSum=new int[arr_size];
+      int *tempLength= new int[arr_size];
+      
+      //Copying the old array's contents to the new arrays.
+      for(i=0; i<=last_word; i++)
+      {
+        tempWords[last_word]=new char[length[last_word]];
+        strcpy(tempWords[last_word], words[last_word]);
+        tempSum[last_word]=sum[last_word];
+        tempLength[last_word]= length[last_word];
+      }
+      
+      //Pointing the old pointers to the new arrays and deleting the temporary pointers.
+      delete words;
+      words = tempWords;
+      delete sum;
+      sum= tempSum;
     }
 
-    delete words;
-    words = tempWords;
-    delete sum;
-    sum= tempSum;
-
-    firstWord=false;
+    int len = strlen(string) + 1; //Holds the length of the given word
+    length[last_word]=len; //Stores the length of the word in an array, will need this array to increase the size of the words[] array and for possible sorting
+    words[last_word] = new char[len]; //Allocating the required memory of the given word with the help of len
+    strcpy(words[last_word], string);//Copying the word into the array.
+    sum[last_word]=1;//Updating the parallel array, the new word has obviously only appeared once.
+    firstWord=false; //The first word is already placed in the array.
   }
-  else//this means that the words exists, so the number that the word has appeared grows
+  else//This means that the words exists, so the number that the word has appeared increases by 1. indx is the index of the found word after performing linear searching.
   {
     sum[indx]++;
   }
-}//Asimakis: etsi opws ta vlepw dn mporw na vrw kapoio fanero lathos - char ** xrisimopoiousa ki egw stis askiseis tou lentza me ta strings opote eimai arketa confident oti
-//doulevei. To mono pou tha sou protina einai an thes na auksaneis to megethos tou array kata 5-10 kathe fora pou exeis ftasei sto limit kai oxi kata 1 kathe fora pou kaneis insert
-//Kanei ton kwdika pio grigoro - kai den se xalaei ama telika den xrisimopoihthoun kapoies theseis giati max 4-9 theseis tha minoun kenes se olo to programma kai exoume na kanoume
-//me keimeno 10000+ leksewn xd
-
+}
 
 //PRIVATE, I NEED THIS IN ORDER TO KNOW IF I SHOULD UPDATE THE ARRAYS OR NOT.
 bool unsortedArray::wordExists(char* string)
 {
-  bool flag=false;
+  indx=0;
+  bool flag=false;//If the word is found, flag will become true.
   while(indx<=last_word && flag==false)
   {
-    if(strcmp(string,words[last_word])==0)
+    if(strcmp(string,words[indx])==0)//checks if the given word is the same word as words[indx]
     {
-        flag=true;
+        flag=true;//The word is found!
     }
     else
     {
-      indx++;
+      indx++; //Checking the next word.
     }
   }
   return flag;
@@ -91,42 +104,33 @@ bool unsortedArray::wordExists(char* string)
 
 void unsortedArray::search(char* string)
 {
-  bool flag=false;
-  auto stop= chrono::high_resolution_clock::now();//COPYPASTAAAAAAA, to prosthesa epidi to prostheses XDDD
-  while(indx<=last_word && flag==false)
+  //The following lines of code searches if the word exists in the array, just like the linear searching we did above
+  auto start= chrono::high_resolution_clock::now();
+  if(wordExists(string))
   {
-    if(strcmp(string,words[last_word])==0)
-    {
-        flag=true;
-    }
-    else
-    {
-      indx++;
-    }
-    if(flag)
-    {
-      cout<<"String \""<<string<<"\" exists in the unsorted array "<<sum[indx]<<" time(s) (search time: "<<duration.count()<<" seconds)."<<endl;//copypasta, den exo polikatalavi to duration :')
-    }
-    else
-    {
-      return;
-    }
-  }//Asimakis: min nomizeis oti egw ktlvenw ti kanw me ta high resolution clock xd, ki egw copy pasta ta ekana. Dn ta exeis parei ola omws, sou dinw to arthro p diavasa
-}//gia na ktlveis pos prepei na ta valeis ston kwdika: https://www.geeksforgeeks.org/measure-execution-time-function-cpp/
+    //The word is found, so we will print how many times the word has appeared and the execution time.
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration= std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+    cout<<"String \""<<string<<"\" exists in the unsorted array "<<sum[indx]<<" time(s) (search time: "<<duration.count()<<" seconds)."<<endl;
+  }
+  else
+  {
+    //The word is not found
+    auto stop = std::chrono::high_resolution_clock::now();
+    return;
+  }
+}
 
 
 bool unsortedArray::delete_word(char * string)
 {
   if(!wordExists(string))
   {
-    return false;
+    return false; //The given word does not exist in the array
   }
   else
   {
-    delete words[indx];
+    delete words[indx];// The given word exists in the array, so we delete it by using the indx we got from linear searching
+    return true;
   }
 }
-
-//NOT DONE AT ALL
-
-//kala ta pas, dw - destroy pou mou eleges btw den nomizw na xriazesai. Kamia print() tha ekana egw ama ithela na valw kai tpt allo, an kai me toses lekseis isws na min einai kali idea xdd
