@@ -112,7 +112,7 @@ void unsortedArray::search(char* string)
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration= std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
     cout<<"String \""<<string<<"\" exists in the unsorted array "<<sum[indx]<<" time(s) (search time: "<<duration.count()<<" seconds)."<<endl;
-  }
+  }//asimakis: otan kaneis testing pes m ligo an doulevei gia sena auto to setup me to high resolution clock. emena m evgaze 0 se ola lol. to exw allaksei ligo sto tree alla sinexizei na min einai kai poli kalo
   else
   {
     //The word is not found
