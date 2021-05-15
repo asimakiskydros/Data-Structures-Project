@@ -15,7 +15,7 @@ class sortedArray: public unsortedArray
   int mid;//helps me with the searching process
   
   public:
-  void sort();//sorts the arrays with bubble sort
+  void sort();//sorts the arrays with bubble sort     //asimakis: kanto private auto, o user allwste perimenei oti to sorting tha ginei apo mono t
   void search(char *, int, int);//Looks for the word with binary search, shows the times the word has appeared(if it exists) plus the searching time
   bool delete_word(char *);//Deletes a specific word in the array and returns true, if the word isn't found returns false
 
