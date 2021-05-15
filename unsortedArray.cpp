@@ -102,7 +102,7 @@ bool unsortedArray::wordExists(char* string)
 
 
 
-void unsortedArray::search(char* string)
+void unsortedArray::search(char* string)//asimakis:,ostream &o)valto auto xriazetai gt den kanoume print stin othoni alla se file
 {
   //The following lines of code searches if the word exists in the array, just like the linear searching we did above
   auto start= chrono::high_resolution_clock::now();
