@@ -8,9 +8,11 @@ using namespace std::chrono;
 
 BinarySearchTree::BinarySearchTree(){
 	root=nullptr;
+	cout<<"New binary search tree created"<<endl;
 }
 BinarySearchTree::~BinarySearchTree(){
 	destroy(root);
+	cout<<"Tree destroyed"<<endl;
 }
 void BinarySearchTree::reset(){
 	destroy(root);
@@ -93,15 +95,15 @@ node* BinarySearchTree::search(char* string,node* ptr){
 	return nullptr;
 }
 //Public part
-node *BinarySearchTree::search(char* string){
-	auto start=high_resolution_clock::now();
+bool BinarySearchTree::search(char* string,ostream &o){
+	auto t0=high_resolution_clock::now();
 	node* ptr=search(string,root);
-	auto stop=high_resolution_clock::now();
-	if(ptr!=nullptr){
-		auto duration=duration_cast<microseconds>(stop-start);
-		cout<<"String \""<<ptr->data<<"\" exists in the tree "<<ptr->instances<<" time(s) (search time: "<<duration.count()<<" microseconds)."<<endl;	
+	auto t1=high_resolution_clock::now();
+	duration<double,milli> dt = t1-t0;
+	if(ptr!=nullptr){								      //\/ this right here ensures no scientific notation of numbers
+		o<<">>\""<<ptr->data<<"\" found "<<ptr->instances<<" time(s) (search time: "<<fixed<<dt.count()<<" msec)."<<endl;	
 	}
-	return ptr;
+	return ptr!=nullptr;//for some bullshit reason this setup takes longer to find the root than a leaf (????). It gives numbers at least...
 }
 char *BinarySearchTree::get_max(){
 	//As this is a binary Search tree, the maximum value is the furthermost leaf on the right
@@ -119,36 +121,40 @@ char *BinarySearchTree::get_min(){
 		temp=temp->left;
 	return temp->data;
 }
-void BinarySearchTree::print(node* ptr){
-	cout<<ptr->data<<" (appears "<<ptr->instances<<" time(s))"<<endl;
+void BinarySearchTree::print(node* ptr,ostream &o){
+	int times=ptr->instances;
+	o<<"	"<<ptr->data;
+	if(times>1)
+		o<<"(*"<<times<<")";
+	o<<endl;
 }
-void BinarySearchTree::scan(node* ptr,short which){
+void BinarySearchTree::scan(node* ptr,short which,ostream &o){
 	if(ptr==nullptr)
 		return;
 	if(which==1){//preorder; Root->Left->Right
-		print(ptr);
-		scan(ptr->left,1);
-		scan(ptr->right,1);
+		print(ptr,o);
+		scan(ptr->left,1,o);
+		scan(ptr->right,1,o);
 	}
 	else if(which==2){//inorder; Left->Root->Right
-		scan(ptr->left,2);
-		print(ptr);
-		scan(ptr->right,2);
+		scan(ptr->left,2,o);
+		print(ptr,o);
+		scan(ptr->right,2,o);
 	}
 	else if(which==3){//postorder; Left->Right->Root
-		scan(ptr->left,3);
-		scan(ptr->right,3);
-		print(ptr);
+		scan(ptr->left,3,o);
+		scan(ptr->right,3,o);
+		print(ptr,o);
 	}
 }
-void BinarySearchTree::preorder(){
-	scan(root,1);
+void BinarySearchTree::preorder(ostream &o){
+	scan(root,1,o);
 }
-void BinarySearchTree::inorder(){
-	scan(root,2);
+void BinarySearchTree::inorder(ostream &o){
+	scan(root,2,o);
 }
-void BinarySearchTree::postorder(){
-	scan(root,3);
+void BinarySearchTree::postorder(ostream &o){
+	scan(root,3,o);
 }
 //returns the address of the string's parent and whether it's a right child or not
 node *BinarySearchTree::parent(char *string,node *ptr, bool *isRight){
