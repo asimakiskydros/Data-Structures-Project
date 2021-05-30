@@ -12,7 +12,7 @@ class BinarySearchTreeAVL:public BinarySearchTree{
 	public:
 		BinarySearchTreeAVL();
 		void insert(char *);
-		bool delete_(char *);
+		bool remove(char *);
 		//These two behave exactly the same as in the regular tree, but with every
 		//instance they check if the height balance is disturbed and act accordingly
 };
