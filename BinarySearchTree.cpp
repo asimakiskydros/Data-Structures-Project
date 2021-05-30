@@ -1,23 +1,18 @@
 #include "BinarySearchTree.h"
 #include <cstring>
 #include <iostream>
-#include <chrono>
 
 using namespace std;
-using namespace std::chrono;
 
 BinarySearchTree::BinarySearchTree(){
 	root=nullptr;
-	cout<<"New binary search tree created"<<endl;
 }
 BinarySearchTree::~BinarySearchTree(){
 	destroy(root);
-	cout<<"Tree destroyed"<<endl;
 }
 void BinarySearchTree::reset(){
 	destroy(root);
 	root=nullptr;
-	cout<<"Tree resetted successfully"<<endl;	
 }
 void BinarySearchTree::destroy(node *ptr){
 	if(ptr!=nullptr){
@@ -96,14 +91,10 @@ node* BinarySearchTree::search(char* string,node* ptr){
 }
 //Public part
 bool BinarySearchTree::search(char* string,ostream &o){
-	auto t0=high_resolution_clock::now();
 	node* ptr=search(string,root);
-	auto t1=high_resolution_clock::now();
-	duration<double,milli> dt = t1-t0;
-	if(ptr!=nullptr){								      //\/ this right here ensures no scientific notation of numbers
-		o<<">>\""<<ptr->data<<"\" found "<<ptr->instances<<" time(s) (search time: "<<fixed<<dt.count()<<" msec)."<<endl;	
-	}
-	return ptr!=nullptr;//for some bullshit reason this setup takes longer to find the root than a leaf (????). It gives numbers at least...
+	if(ptr!=nullptr)
+		o<<">>\""<<ptr->data<<"\" found "<<ptr->instances<<" time(s)"<<endl;	
+	return ptr!=nullptr;
 }
 char *BinarySearchTree::get_max(){
 	//As this is a binary Search tree, the maximum value is the furthermost leaf on the right
@@ -183,7 +174,7 @@ node *BinarySearchTree::parent(char *string,node *ptr, bool *isRight){
 	}
 	return nullptr;//Basically if the tree is empty or the string is in the root
 }
-bool BinarySearchTree::delete_(char *string){
+bool BinarySearchTree::remove(char *string){
 	bool isright=false;
 	node *deleting=search(string,root);
 	node* prnt=parent(string,root,&isright);
