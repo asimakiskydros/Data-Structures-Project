@@ -41,6 +41,6 @@ class unsortedArray
 
 
 //O destructor pistevis oti einai sostos tora? Diavasa to comment sou kai elpizo na katalava afto pou ennois ;-;    //asimakis:swsto fainetai, an kai pali fas segfault pes na to doume
-//ekana update to insert, isos ine ligo kalitero tora me vasi afta pou mou protines, ty bro. ise 5head
+//ekana update to insert, isos ine ligo kalitero tora me vasi afta pou mou protines, ty bro. ise 5head //asimakis: sorry pou prizw rn alla isws einai akoma kltr na diplasiazeis ton proigoumeno xwro kathe fora pou xtipas tavani xd. Apo pragmata p akouw mesa sto mathima.
 
 //an dis kati pou den sou aresi, afise sxolio xD
