@@ -25,7 +25,7 @@ class BinarySearchTree{
 		bool search(char *,ostream &);//Searches for string, if it exists
 		//it prints its details and returns true, else it returns false
 		void reset();//Resets the tree to an empty one (deletes everything and sets root to NULL)
-		virtual bool delete_(char *);//Finds then deletes the specified string
+		virtual bool remove(char *);//Finds then deletes the specified string
 		//then returns true - if it doesnt exist it returns false
 		void preorder(ostream &);
 		void inorder(ostream &);
