@@ -1,103 +1,40 @@
 #include <iostream>
 #include <fstream>
+#include <chrono>
 #include "unsortedArray.h"
 #include "sortedArray.h"
 #include "BinarySearchTree.h"
 #include "BinarySearchTreeAVL.h"
 #include "mystring.h"
-using namespace std;
+#define CEILING 1000
 
-int main() {
+using namespace std;
+using namespace std::chrono;
+
+int main(){
 	ifstream ifs;
 	ofstream ofs;
 	mystring string;
+	mystring Q[CEILING];
 
-	//NORMAL SEARCH TREE
-	BinarySearchTree BT;
-	ifs.open("test2.txt");
+	//Get 1000 sample-words from document
+	ifs.open("input.txt");
 	if(ifs.is_open()){
-		while(ifs>>string){
+		int count=0;
+		while(ifs>>string && count<CEILING){
 			string.fix();
-			BT.insert(string.getData());
+			Q[count]=string;
 		}
 		ifs.close();
 	}
-	else
-		cerr<<"(!)Reading file error"<<endl;
-	ofs.open("test-output2.txt",ios::out | ios::app);
-	if(ofs.is_open()){
-		cout<<"File \"test-output.txt\" created successfully"<<endl;
-		ofs<<"BINARY SEARCH TREE RESULTS:"<<endl;
-		ofs<<"Searching for string \"the\""<<endl;
-		if(!BT.search((char*)"the", ofs))
-			ofs<<"(!)String could not be found"<<endl;
-		ofs<<"Searching for string \"brown\""<<endl;	
-		if(!BT.search((char*)"brown",ofs))
-			ofs<<"(!)String could not be found"<<endl;
-		ofs<<"[]Pre-order:"<<endl;
-		BT.preorder(ofs);
-		ofs<<"[]In-order:"<<endl;
-		BT.inorder(ofs);
-		ofs<<"[]Post-order:"<<endl;
-		BT.postorder(ofs);
-		ofs<<"Attempting to delete string \"fox\""<<endl;
-		if(BT.delete_((char*)"fox"))
-			ofs<<">>Deletion successful"<<endl;
-		else
-			ofs<<"(!)Failed. Non-existant string or plausible error"<<endl;
-		ofs<<"[]In-order (after deletion):"<<endl;
-		BT.inorder(ofs);
-		ofs<<endl<<endl;
-		ofs.close();
+	else{
+		cerr<<"(!) Failed to get a word sample. Shutting down..."<<endl;
+		exit(1);
 	}
-	else
-		cerr<<"(!)Creating file error"<<endl;
-	BT.reset();
 
-	//AVL TREE
-	BinarySearchTree BTAVL;
-	ifs.open("test2.txt");
-	if(ifs.is_open()){
-		while(ifs>>string){
-			string.fix();
-			BTAVL.insert(string.getData());
-		}
-		ifs.close();
-	}
-	else
-		cerr<<"(!)Reading file error"<<endl;
-	ofs.open("test-output2.txt",ios::out | ios::app);
-	if(ofs.is_open()){
-		ofs<<"BINARY SEARCH TREE AVL RESULTS:"<<endl;
-		ofs<<"Searching for string \"the\""<<endl;
-		if(!BTAVL.search((char*)"the", ofs))
-			ofs<<"(!)String could not be found"<<endl;
-		ofs<<"Searching for string \"brown\""<<endl;	
-		if(!BTAVL.search((char*)"brown",ofs))
-			ofs<<"(!)String could not be found"<<endl;
-		ofs<<"[]Pre-order:"<<endl;
-		BTAVL.preorder(ofs);
-		ofs<<"[]In-order:"<<endl;
-		BTAVL.inorder(ofs);
-		ofs<<"[]Post-order:"<<endl;
-		BTAVL.postorder(ofs);
-		ofs<<"Attempting to delete string \"fox\""<<endl;
-		if(BTAVL.delete_((char*)"fox"))
-			ofs<<">>Deletion successful"<<endl;
-		else
-			ofs<<"(!)Failed. Non-existant string or plausible error"<<endl;
-		ofs<<"[]In-order (after deletion):"<<endl;
-		BTAVL.inorder(ofs);
-		ofs<<endl<<endl;
-		ofs.close();
-	}
-	else
-		cerr<<"(!)Editing file error"<<endl;
-	BTAVL.reset();
-
-	//UNSORTED ARRAY
+	//Unsorted Array
 	unsortedArray UARR;
-	ifs.open("test2.txt");
+	ifs.open("input.txt");
 	if(ifs.is_open()){
 		while(ifs>>string){
 			string.fix();
@@ -106,30 +43,26 @@ int main() {
 		ifs.close();
 	}
 	else
-		cerr<<"(!)Reading file error"<<endl;
-	ofs.open("test-output2.txt",ios::out | ios::app);
+		cerr<<"(!) Reading file error trying to initialize unsorted array."<<endl;
+	ofs.open("output.txt", ios::out | ios::app);
 	if(ofs.is_open()){
 		ofs<<"UNSORTED ARRAY RESULTS:"<<endl;
-		ofs<<"Searching for string \"the\""<<endl;
-		if(!UARR.search((char*)"the", ofs))
-			ofs<<"(!)String could not be found"<<endl;
-		ofs<<"Searching for string \"brown\""<<endl;	
-		if(!UARR.search((char*)"brown",ofs))
-			ofs<<"(!)String could not be found"<<endl;
-		ofs<<"Attempting to delete string \"fox\""<<endl;
-		if(UARR.delete_word((char*)"fox"))
-			ofs<<">>Deletion successful"<<endl;
-		else
-			ofs<<"(!)Failed. Non-existant string or plausible error"<<endl;
-		ofs<<endl<<endl;
+		auto t0=high_resolution_clock::now();
+		for(int indx=0;indx<CEILING;indx++)
+			if(!UARR.search(Q[indx].getData(),ofs))
+				ofs<<"\""<<Q[indx].getData()<<"\" not found"<<endl;
+		auto t1=high_resolution_clock::now();
+		duration<double,milli> dt1 = t1-t0;
+		ofs<<"Elapsed time: "<<fixed<<dt1.count()<<" msec"<<endl<<endl;
 		ofs.close();
 	}
 	else
-		cerr<<"(!)Editing file error"<<endl;
-	
-	//SORTED ARRAY
+		cerr<<"(!) Exiting file error in unsorted array."<<endl;
+	UARR.reset();
+
+	//Sorted Array
 	sortedArray SARR;
-	ifs.open("test2.txt");
+	ifs.open("input.txt");
 	if(ifs.is_open()){
 		while(ifs>>string){
 			string.fix();
@@ -138,36 +71,92 @@ int main() {
 		ifs.close();
 	}
 	else
-		cerr<<"(!)Reading file error"<<endl;
-	ofs.open("test-output2.txt",ios::out | ios::app);
+		cerr<<"(!) Reading file error trying to initialize sorted array."<<endl;
+	ofs.open("output.txt", ios::out | ios::app);
 	if(ofs.is_open()){
 		ofs<<"SORTED ARRAY RESULTS:"<<endl;
-		ofs<<"Searching for string \"the\""<<endl;
-		if(!SARR.search((char*)"the", ofs))
-			ofs<<"(!)String could not be found"<<endl;
-		ofs<<"Searching for string \"brown\""<<endl;	
-		if(!SARR.search((char*)"brown",ofs))
-			ofs<<"(!)String could not be found"<<endl;
-		ofs<<"Attempting to delete string \"fox\""<<endl;
-		if(SARR.delete_word((char*)"fox"))
-			ofs<<">>Deletion successful"<<endl;
-		else
-			ofs<<"(!)Failed. Non-existant string or plausible error"<<endl;
-		ofs<<endl<<endl<<"<-----END-OF-FILE----->";
+		auto t2=high_resolution_clock::now();
+		for(int indx=0;indx<CEILING;indx++)
+			if(!SARR.search(Q[indx].getData(),ofs))
+				ofs<<"\""<<Q[indx].getData()<<"\" not found"<<endl;
+		auto t3=high_resolution_clock::now();
+		duration<double,milli> dt2 = t3-t2;
+		ofs<<"Elapsed time: "<<fixed<<dt2.count()<<" msec"<<endl<<endl;
 		ofs.close();
 	}
 	else
-		cerr<<"(!)Editing file error"<<endl;
-	
+		cerr<<"(!) Exiting file error in sorted array."<<endl;
+	SARR.reset();
+
+	//Binary Search Tree
+	BinarySearchTree BST;
+	ifs.open("input.txt");
+	if(ifs.is_open()){
+		while(ifs>>string){
+			string.fix();
+			BST.insert(string.getData());
+		}
+		ifs.close();
+	}
+	else
+		cerr<<"(!) Reading file error trying to initialize binary search tree."<<endl;
+	ofs.open("output.txt", ios::out | ios::app);
+	if(ofs.is_open()){
+		ofs<<"BINARY SEARCH TREE RESULTS:"<<endl;
+		auto t4=high_resolution_clock::now();
+		for(int indx=0;indx<CEILING;indx++)
+			if(!BST.search(Q[indx].getData(),ofs))
+				ofs<<"\""<<Q[indx].getData()<<"\" not found"<<endl;
+		auto t5=high_resolution_clock::now();
+		duration<double,milli> dt3 = t5-t4;
+		ofs<<"Elapsed time: "<<fixed<<dt3.count()<<" msec"<<endl<<endl;
+		ofs.close();
+	}
+	else
+		cerr<<"(!) Exiting file error in binary search tree."<<endl;
+	BST.reset();
+
+	//Binary Search Tree AVL
+	BinarySearchTreeAVL BSTAVL;
+	ifs.open("input.txt");
+	if(ifs.is_open()){
+		while(ifs>>string){
+			string.fix();
+			BSTAVL.insert(string.getData());
+		}
+		ifs.close();
+	}
+	else
+		cerr<<"(!) Reading file error trying to initialize binary search tree AVL."<<endl;
+	ofs.open("output.txt", ios::out | ios::app);
+	if(ofs.is_open()){
+		ofs<<"BINARY SEARCH TREE AVL RESULTS:"<<endl;
+		auto t6=high_resolution_clock::now();
+		for(int indx=0;indx<CEILING;indx++)
+			if(!BSTAVL.search(Q[indx].getData(),ofs))
+				ofs<<"\""<<Q[indx].getData()<<"\" not found"<<endl;
+		auto t7=high_resolution_clock::now();
+		duration<double,milli> dt4 = t7-t6;
+		ofs<<"Elapsed time: "<<fixed<<dt4.count()<<" msec"<<endl<<endl;
+		ofs.close();
+	}
+	else
+		cerr<<"(!) Exiting file error in binary search tree AVL."<<endl;
+	BSTAVL.reset();
+
+	//Hash Table
+	//.
+	//.
+	//.
+
 	return 0;
 }
-//profanws einai temporary template auto, den tha psaxnoume manually sto teliko version
 
-//Kalo einai na mpoun me auksousa seira poliplokotitas, dld
-// UARR->SARR->BT->BTAVL->HASHTBL
-//to ekana etsi gia na swsw oso perissoteri mnimi mporw atm
-//gi auto kalo einai na ulopoihseis ki esi reset() i delete() methodous
-
-//a episis tha deis oti se merika simia kanw print kai stin othoni.
-//kalitera min to kaneis auto, paizei na to afairesw gt tha ton ekneurizei an anoigei
-//to cmd polles fores
+//>Min metras xrono stis sinartiseis, ase na to kanw egw stin main
+//>Kane tis public search bool
+//>Stis search vale na pernei orisma ostream &o giati i ektipwsi prepei na ginetai se file
+//oxi sto cout apparetita. Na mporw diladi UARR.search(string,ofs);
+//>Stis search min exeis alla orismata pera apo to string kai to ostream&
+//an xriazontai ta int, int pou exeis pros to paron, valta stin private
+//>Vale reset function se oles tis domes
+//>An thes help sto hash table pes mou, na isxuoun ta analoga apo panw kai gi auto
