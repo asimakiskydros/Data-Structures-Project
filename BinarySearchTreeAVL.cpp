@@ -96,8 +96,8 @@ void BinarySearchTreeAVL::insert(char *string){
 	bool isright=false;
 	scanForUnbalance(root,prnt,isright);
 }
-bool BinarySearchTreeAVL::delete_(char *string){
-	bool response=BinarySearchTree::delete_(string);//delete string
+bool BinarySearchTreeAVL::remove(char *string){
+	bool response=BinarySearchTree::remove(string);//delete string
 	if(response){
 		node* prnt=nullptr;
 		bool isright=false;
