@@ -17,4 +17,5 @@ lowercase latin characters and numbers. Work in pairs\*\*\*.
 
 *\* Note that this project is from our second semester, therefore the original header has been lost and
 the provided code is basically ancient.*
+
 *\*\* This document was 30GB heavy so even if I still had it I doubt I could (or should) have uploaded it here.*
