@@ -13,7 +13,7 @@ Use the data of the given input.txt file\*\* to time these structures against ea
 based on the time it takes them to insert the above document and search and delete a sample of 1000 words from the
 same document (pick these words however you like). Print these stats to the screen.
 Take note that some words in this file may be garbled, so you should normalize them to just
-lowercase latin characters and numbers. Work in pairs\*\*\*.
+lowercase latin characters and numbers. Work in pairs.
 
 *\* Note that this project is from our second semester, therefore the original header has been lost and
 the provided code is basically ancient.*
