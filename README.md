@@ -19,3 +19,5 @@ lowercase latin characters and numbers. Work in pairs\*\*\*.
 the provided code is basically ancient.*
 
 *\*\* This document was 30GB heavy so even if I still had it I doubt I could (or should) have uploaded it here.*
+
+*Project courtesy of Aristotle University of Thessalonica, CSD.*
