@@ -1,6 +1,6 @@
 # Data Structures Project
 
-Project header\* :
+Project header:
 
 Implement the following data structures in C++ to the best of your abilities:
 * unsorted array
@@ -9,7 +9,7 @@ Implement the following data structures in C++ to the best of your abilities:
 * avl binary search tree
 * hash table
 
-Use the data of the given input.txt file\*\* to time these structures against each other,
+Use the data of the given input.txt file\* to time these structures against each other,
 based on the time it takes them to insert the above document and search and delete a sample of 1000 words from the
 same document (pick these words however you like). Print these stats to the screen.
 Take note that some words in this file may be garbled, so you should normalize them to just
