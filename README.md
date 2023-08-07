@@ -2,7 +2,7 @@
 
 Project header\* :
 
-Implement in C++ the following data structures to the best of your abilities:
+Implement the following data structures in C++ to the best of your abilities:
 * unsorted array
 * sorted array
 * simple binary search tree
