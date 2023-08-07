@@ -18,6 +18,7 @@ lowercase latin characters and numbers. Work in pairs.
 Notes:
 * this project is from our second semester, therefore the original header has been lost and
 the provided code is basically ancient
+
 *\* this document was 30GB heavy so even if I still had it I doubt I could (or should) have uploaded it here
 
 *Project courtesy of Aristotle University of Thessalonica, CSD.*
