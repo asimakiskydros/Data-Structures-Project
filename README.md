@@ -3,11 +3,11 @@
 Project header:
 
 Implement the following data structures in C++ to the best of your abilities:
-* unsorted array
-* sorted array
-* simple binary search tree
-* avl binary search tree
-* hash table
+* Unsorted array
+* Sorted array
+* Simple binary search tree
+* AVL binary search tree
+* Hash table
 
 Use the data of the given input.txt file\* to time these structures against each other,
 based on the time it takes them to insert the above document and search and delete a sample of 1000 words from the
@@ -16,7 +16,7 @@ Take note that some words in this file may be garbled, so you should normalize t
 lowercase latin characters and numbers. Work in pairs.
 
 Notes:
-* this project is from our second semester, therefore the original header has been lost and the provided code is basically ancient
-* this document\* was 30GB heavy so even if I still had it I doubt I could (or should) have uploaded it here
+* This project is from our second semester, therefore the original header has been lost and the provided code is basically ancient
+* This document\* was 30GB heavy so even if I still had it I doubt I could (or should) have uploaded it here
 
 *Project courtesy of Aristotle University of Thessalonica, CSD.*
