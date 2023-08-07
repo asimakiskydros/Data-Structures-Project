@@ -15,9 +15,9 @@ same document (pick these words however you like). Print these stats to the scre
 Take note that some words in this file may be garbled, so you should normalize them to just
 lowercase latin characters and numbers. Work in pairs.
 
-*\* Note that this project is from our second semester, therefore the original header has been lost and
-the provided code is basically ancient.*
-
-*\*\* This document was 30GB heavy so even if I still had it I doubt I could (or should) have uploaded it here.*
+Notes:
+* this project is from our second semester, therefore the original header has been lost and
+the provided code is basically ancient
+*\* this document was 30GB heavy so even if I still had it I doubt I could (or should) have uploaded it here
 
 *Project courtesy of Aristotle University of Thessalonica, CSD.*
